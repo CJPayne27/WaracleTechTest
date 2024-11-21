@@ -1,5 +1,6 @@
 using HotelWaracleBookingApi.Data;
 using Microsoft.EntityFrameworkCore;
+using DatabaseSeeder = HotelWaracleBookingApi.Data.Seeding.DatabaseSeeder;
 
 namespace HotelWaracleBookingApi
 {

@@ -1,6 +1,6 @@
 ﻿using HotelWaracleBookingApi.Models;
 
-namespace HotelWaracleBookingApi.Data
+namespace HotelWaracleBookingApi.Data.Seeding
 {
     public partial class DatabaseSeeder
     {
@@ -27,13 +27,13 @@ namespace HotelWaracleBookingApi.Data
 
             if (!_context.Hotels.Any())
             {
-                var hotels = CreateHotelData();
+                var hotels = DatabaseSeeder.CreateHotelData();
                 await _context.Hotels.AddRangeAsync(hotels);
             }
 
             if (!_context.HotelRooms.Any())
             {
-                var rooms = CreateRoomData();
+                var rooms = DatabaseSeeder.CreateRoomData();
                 await _context.HotelRooms.AddRangeAsync(rooms);
             }
 

@@ -7,9 +7,11 @@ namespace HotelWaracleBookingApi.Data
     public class HotelWaracleDbContext : DbContext
     {
         private readonly ILogger<HotelWaracleDbContext> _logger;
+        private readonly DbContextOptions<HotelWaracleDbContext> _options;
 
         public HotelWaracleDbContext(DbContextOptions<HotelWaracleDbContext> options, ILogger<HotelWaracleDbContext> logger) : base(options)
         {
+            _options = options ?? throw new ArgumentNullException(nameof(options));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         } 
 
@@ -19,6 +21,8 @@ namespace HotelWaracleBookingApi.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            _logger.LogInformation("Configuring database model");
+
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Hotel>().ToTable("Hotels", "dbo");
@@ -28,6 +32,8 @@ namespace HotelWaracleBookingApi.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            _logger.LogInformation("Ignoring PendingModelChangesWarning");
+
             optionsBuilder.ConfigureWarnings(warnings =>
                 warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
         }

@@ -1,6 +1,6 @@
 ﻿using HotelWaracleBookingApi.Models;
 
-namespace HotelWaracleBookingApi.Data;
+namespace HotelWaracleBookingApi.Data.Seeding;
 
 public partial class DatabaseSeeder
 {

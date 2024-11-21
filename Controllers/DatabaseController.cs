@@ -1,6 +1,5 @@
-﻿using HotelWaracleBookingApi.Data;
+﻿using HotelWaracleBookingApi.Data.Seeding;
 using HotelWaracleBookingApi.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelWaracleBookingApi.Controllers
