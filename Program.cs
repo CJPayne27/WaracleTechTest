@@ -1,4 +1,7 @@
 using HotelWaracleBookingApi.Data;
+using HotelWaracleBookingApi.Data.Repositories;
+using HotelWaracleBookingApi.Services;
+using HotelWaracleBookingApi.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using DatabaseSeeder = HotelWaracleBookingApi.Data.Seeding.DatabaseSeeder;
 
@@ -26,6 +29,9 @@ namespace HotelWaracleBookingApi
             builder.Services.AddLogging();
 
             builder.Services.AddScoped<DatabaseSeeder>();
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            builder.Services.AddScoped<IHotelRoomsRepository, HotelRoomsRepository>();
+            builder.Services.AddScoped<IHotelRoomsService, HotelRoomsService>();
 
             var app = builder.Build();
 

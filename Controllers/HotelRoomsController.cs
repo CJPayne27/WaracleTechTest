@@ -1,6 +1,5 @@
-﻿using HotelWaracleBookingApi.Data;
+﻿using HotelWaracleBookingApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace HotelWaracleBookingApi.Controllers
 {
@@ -8,12 +7,12 @@ namespace HotelWaracleBookingApi.Controllers
     [ApiController]
     public class HotelRoomsController : ControllerBase
     {
-        private readonly HotelWaracleDbContext _context;
+        private readonly IHotelRoomsService _hotelRoomsService;
         private readonly ILogger<HotelRoomsController> _logger;
 
-        public HotelRoomsController(HotelWaracleDbContext context, ILogger<HotelRoomsController> logger)
+        public HotelRoomsController(IHotelRoomsService hotelRoomsService, ILogger<HotelRoomsController> logger)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _hotelRoomsService = hotelRoomsService ?? throw new ArgumentNullException(nameof(hotelRoomsService));
             _logger = logger ?? throw new ArgumentNullException(nameof(ILogger<HotelRoomsController>));
         }
 
@@ -28,7 +27,7 @@ namespace HotelWaracleBookingApi.Controllers
             
             try
             {
-                var hotelRooms = await _context.HotelRooms.ToListAsync();
+                var hotelRooms = await _hotelRoomsService.GetAllHotelRooms();
 
                 _logger.LogInformation("HotelRooms: Processing request to return all hotel rooms");
 
@@ -61,9 +60,9 @@ namespace HotelWaracleBookingApi.Controllers
 
             try
             {
-                var hotelRooms = await _context.HotelRooms.Where(r => r.HotelId == hotelId).ToListAsync();
+                var hotelRooms = await _hotelRoomsService.GetHotelRoomsByHotelId(hotelId);
 
-                if (hotelRooms.Count == 0)
+                if (!hotelRooms.Any())
                 {
                     _logger.LogInformation("HotelRooms: No rooms found for HotelId: {HotelId}", hotelId);
 
