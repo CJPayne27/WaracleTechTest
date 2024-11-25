@@ -23,7 +23,7 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new() { Title = "HotelWaracleBookingApi", Version = "v1", Description = "CJ Grant Tech Test "});
+            c.SwaggerDoc("v1", new() { Title = "HotelWaracleBookingApi", Version = "v1", Description = "CJ Grant Tech Test"});
         });
 
         builder.Services.AddLogging();
@@ -32,6 +32,10 @@ public class Program
         builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         builder.Services.AddScoped<IHotelRoomRepository, HotelRoomRepository>();
         builder.Services.AddScoped<IHotelRoomService, HotelRoomService>();
+        builder.Services.AddScoped<IHotelRepository, HotelRepository>();
+        builder.Services.AddScoped<IHotelService, HotelService>();
+        builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+        builder.Services.AddScoped<IBookingService, BookingService>();
 
         var app = builder.Build();
 

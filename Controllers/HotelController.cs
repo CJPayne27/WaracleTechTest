@@ -1,6 +1,5 @@
-﻿using HotelWaracleBookingApi.Data;
+﻿using HotelWaracleBookingApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace HotelWaracleBookingApi.Controllers;
 
@@ -8,12 +7,12 @@ namespace HotelWaracleBookingApi.Controllers;
 [ApiController]
 public class HotelController : ControllerBase
 {
-    private readonly HotelWaracleDbContext _context;
+    private readonly IHotelService _hotelService;
     private readonly ILogger<HotelController> _logger;
 
-    public HotelController(HotelWaracleDbContext context, ILogger<HotelController> logger)
+    public HotelController(IHotelService hotelService, ILogger<HotelController> logger)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _hotelService = hotelService ?? throw new ArgumentNullException(nameof(hotelService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -24,21 +23,23 @@ public class HotelController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllHotels()
     {
-        _logger.LogInformation("Hotels: Received request to get all hotels");
-
         try
         {
-            var hotels = await _context.Hotels.ToListAsync();
+            _logger.LogInformation("Hotels: Received request to get all hotels");
+            var hotels = await _hotelService.GetAllHotels();
 
-            _logger.LogInformation("Hotels: Processing request to return all hotels");
+            if (hotels == null || !hotels.Any())
+            {
+                _logger.LogInformation("Hotels: No hotels found.");
+                return NotFound("No hotels found.");
+            }
 
             return Ok(hotels);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Hotels: An error occurred while processing the GetAllHotelRooms request");
-
-            return StatusCode(500, "An error occurred while processing your request.");
+            _logger.LogError(ex, "Hotels: An error occurred while retrieving all hotels");
+            return HandleInternalError();
         }
     }
 
@@ -47,11 +48,9 @@ public class HotelController : ControllerBase
     /// </summary>
     /// <param name="hotelId">The Id of the Hotel.</param>
     /// <returns>List of valid hotels, or a 404 if no hotels found.</returns>
-    [HttpGet("/{hotelId:int}")]
+    [HttpGet("{hotelId:int}")]
     public async Task<IActionResult> GetHotelByHotelId(int hotelId)
     {
-        _logger.LogInformation("Hotels: Received request to get hotel information for HotelId: {Id}", hotelId);
-
         if (hotelId <= 0) // Validity of min/max hotelId
         {
             _logger.LogWarning("Hotels: {HotelId} is invalid.", hotelId);
@@ -61,7 +60,7 @@ public class HotelController : ControllerBase
 
         try
         {
-            var hotel = await _context.Hotels.FindAsync(hotelId);
+            var hotel = await _hotelService.GetHotelByHotelId(hotelId);
 
             if (hotel == null)
             {
@@ -70,15 +69,13 @@ public class HotelController : ControllerBase
                 return NotFound($"No hotels found for hotel ID: {hotelId}");
             }
 
-            _logger.LogInformation("Hotels: Processing request to return hotel rooms for HotelId: {HotelId}", hotelId);
-
             return Ok(hotel);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Hotels: An error occurred while processing the GetHotelByHotelId request");
 
-            return StatusCode(500, "An error occurred while processing your request.");
+            return HandleInternalError();
         }
     }
 
@@ -86,12 +83,10 @@ public class HotelController : ControllerBase
     /// Retrieves a hotel by name
     /// </summary>
     /// <param name="name">Name of the Hotel.</param>
-    /// <returns>A single entity of Hotel</returns>
-    [HttpGet("/{name}")]
+    /// <returns>Hotel details, or a 404 if no hotel is found.</returns>
+    [HttpGet("name/{name}")]
     public async Task<IActionResult> GetHotelByName(string name)
     {
-        _logger.LogInformation("Hotels: Received request to get hotel information for Hotel: {name}", name);
-
         if (string.IsNullOrWhiteSpace(name))
         {
             _logger.LogWarning("Hotels: Invalid Hotel name: {name} provided", name);
@@ -101,13 +96,11 @@ public class HotelController : ControllerBase
 
         try
         {
-            var hotel = await _context.Hotels.FirstOrDefaultAsync(h => h.Name == name);
+            var hotel = await _hotelService.GetHotelByName(name);
             if (hotel == null)
             {
                 return NotFound($"No hotels found for hotel name: {name}");
             }
-
-            _logger.LogInformation("Hotels: Processing request to return hotel details for Hotel name: {name}", name);
 
             return Ok(hotel);
         }
@@ -115,7 +108,7 @@ public class HotelController : ControllerBase
         {
             _logger.LogError(ex, "Hotels: An error occurred while processing the GetHotelByName request");
 
-            return StatusCode(500, "An error occurred while processing your request.");
+            return HandleInternalError();
         }
     }
 
@@ -127,4 +120,12 @@ public class HotelController : ControllerBase
 
     //    return CreatedAtAction(nameof(GetHotels), new { id = hotel.Id }, hotel);
     //}
+
+    /// <summary>
+    /// Handles internal server errors consistently.
+    /// </summary>
+    private IActionResult HandleInternalError()
+    {
+        return StatusCode(500, "An error occurred while processing your request. Please try again later.");
+    }
 }

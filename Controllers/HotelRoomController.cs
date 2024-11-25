@@ -23,21 +23,20 @@ public class HotelRoomController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllHotelRooms()
     {
-        _logger.LogInformation("HotelRooms: Received request to get all hotel rooms");
-            
         try
         {
             var hotelRooms = await _hotelRoomService.GetAllHotelRooms();
 
-            _logger.LogInformation("HotelRooms: Processing request to return all hotel rooms");
+            if (!hotelRooms.Any())
+            {
+                return NotFound("No hotel rooms found.");
+            }
 
             return Ok(hotelRooms);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "HotelRooms: An error occurred while processing the GetAllHotelRooms request");
-
-            return StatusCode(500, "An error occurred while processing your request.");
+            return HandleInternalError(e, "Error occurred while retrieving all hotel rooms.");
         }
     }
 
@@ -49,8 +48,6 @@ public class HotelRoomController : ControllerBase
     [HttpGet("{hotelId}")]
     public async Task<IActionResult> GetHotelRoomsByHotelId(string hotelId)
     {
-        _logger.LogInformation("HotelRooms: Received request to get hotel rooms for HotelId: {HotelId}", hotelId);
-
         if (string.IsNullOrWhiteSpace(hotelId))
         {
             _logger.LogWarning("HotelRooms: Invalid HotelId: {HotelId} provided", hotelId);
@@ -64,20 +61,35 @@ public class HotelRoomController : ControllerBase
 
             if (!hotelRooms.Any())
             {
-                _logger.LogInformation("HotelRooms: No rooms found for HotelId: {HotelId}", hotelId);
+                _logger.LogWarning("HotelRooms: No rooms found for HotelId: {HotelId}", hotelId);
 
                 return NotFound($"No rooms found for hotel ID: {hotelId}");
             }
-
-            _logger.LogInformation("HotelRooms: Processing request to return hotel rooms for HotelId: {HotelId}", hotelId);
 
             return Ok(hotelRooms);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "HotelRooms: An error occurred while processing the GetHotelRoomByHotelId request");
-
-            return StatusCode(500, "An error occurred while processing your request.");
+            return HandleInternalError(e, $"Error occurred while retrieving rooms for HotelId: {hotelId}.");
         }
+    }
+
+    /// <summary>
+    /// Handles internal server errors consistently and logs the exception.
+    /// </summary>
+    /// <param name="exception">The exception that occurred.</param>
+    /// <param name="contextMessage">Optional context-specific message for logging.</param>
+    private IActionResult HandleInternalError(Exception exception, string contextMessage = null)
+    {
+        if (!string.IsNullOrWhiteSpace(contextMessage))
+        {
+            _logger.LogError(exception, contextMessage);
+        }
+        else
+        {
+            _logger.LogError(exception, "An unexpected error occurred.");
+        }
+
+        return StatusCode(500, "An error occurred while processing your request. Please try again later.");
     }
 }

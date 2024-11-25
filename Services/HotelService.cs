@@ -9,7 +9,6 @@ public class HotelService : IHotelService
     private readonly IGenericRepository<Hotel> _genericRepository;
     private readonly IHotelRepository _hotelRepository;
 
-
     public HotelService(IGenericRepository<Hotel> genericRepository, IHotelRepository hotelRepository)
     {
         _genericRepository = genericRepository ?? throw new ArgumentNullException(nameof(genericRepository));
@@ -21,12 +20,12 @@ public class HotelService : IHotelService
         return await _genericRepository.GetAllAsync();
     }
 
-    public async Task<Hotel> GetHotelByHotelId(int id)
+    public async Task<Hotel?> GetHotelByHotelId(int id)
     {
         return await _hotelRepository.GetHotelByHotelId(id);
     }
 
-    public async Task<Hotel> GetHotelByName(string name)
+    public async Task<Hotel?> GetHotelByName(string name)
     {
         return await _hotelRepository.GetHotelByName(name);
     }
