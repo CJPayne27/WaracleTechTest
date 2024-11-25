@@ -1,94 +1,93 @@
 ﻿using HotelWaracleBookingApi.Models;
 
-namespace HotelWaracleBookingApi.Data.Seeding
+namespace HotelWaracleBookingApi.Data.Seeding;
+
+public partial class DatabaseSeeder
 {
-    public partial class DatabaseSeeder
+    private readonly HotelWaracleDbContext _context;
+
+    public DatabaseSeeder(HotelWaracleDbContext context)
     {
-        private readonly HotelWaracleDbContext _context;
+        _context = context ?? throw new NullReferenceException(nameof(context));
+    }
 
-        public DatabaseSeeder(HotelWaracleDbContext context)
+    public async Task SeedAsync()
+    {
+        try
         {
-            _context = context ?? throw new NullReferenceException(nameof(context));
+            await ResetMultipleAsync(typeof(Hotel), typeof(HotelRoom), typeof(Booking));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            Console.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
         }
 
-        public async Task SeedAsync()
+        await _context.Database.EnsureCreatedAsync();
+
+        if (!_context.Hotels.Any())
         {
-            try
-            {
-                await ResetMultipleAsync(typeof(Hotel), typeof(HotelRoom), typeof(Booking));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-                Console.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
-            }
-
-            await _context.Database.EnsureCreatedAsync();
-
-            if (!_context.Hotels.Any())
-            {
-                var hotels = DatabaseSeeder.CreateHotelData();
-                await _context.Hotels.AddRangeAsync(hotels);
-            }
-
-            if (!_context.HotelRooms.Any())
-            {
-                var rooms = DatabaseSeeder.CreateRoomData();
-                await _context.HotelRooms.AddRangeAsync(rooms);
-            }
-
-            if (!_context.Bookings.Any())
-            {
-                var bookings = CreateBookingData();
-                await _context.Bookings.AddRangeAsync(bookings);
-            }
-
-            await _context.SaveChangesAsync();
+            var hotels = DatabaseSeeder.CreateHotelData();
+            await _context.Hotels.AddRangeAsync(hotels);
         }
 
-        public async Task ResetMultipleAsync(params Type[] entityTypes)
+        if (!_context.HotelRooms.Any())
         {
-            foreach (var type in entityTypes)
+            var rooms = DatabaseSeeder.CreateRoomData();
+            await _context.HotelRooms.AddRangeAsync(rooms);
+        }
+
+        if (!_context.Bookings.Any())
+        {
+            var bookings = CreateBookingData();
+            await _context.Bookings.AddRangeAsync(bookings);
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task ResetMultipleAsync(params Type[] entityTypes)
+    {
+        foreach (var type in entityTypes)
+        {
+            // Explicitly get the generic Set<TEntity>() method
+            var setMethod = _context.GetType()
+                .GetMethods()
+                .FirstOrDefault(m => m.Name == "Set" && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 1);
+
+            if (setMethod == null)
+                throw new InvalidOperationException($"Unable to find a generic Set method for type '{type.Name}'.");
+
+            // Make the method generic for the given type
+            var genericSetMethod = setMethod.MakeGenericMethod(type);
+
+            // Invoke the generic Set<TEntity>() method
+            var dbSet = genericSetMethod.Invoke(_context, null);
+
+            if (dbSet is IQueryable queryable)
             {
-                // Explicitly get the generic Set<TEntity>() method
-                var setMethod = _context.GetType()
-                    .GetMethods()
-                    .FirstOrDefault(m => m.Name == "Set" && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 1);
+                var entities = queryable.Cast<object>().ToList();
 
-                if (setMethod == null)
-                    throw new InvalidOperationException($"Unable to find a generic Set method for type '{type.Name}'.");
-
-                // Make the method generic for the given type
-                var genericSetMethod = setMethod.MakeGenericMethod(type);
-
-                // Invoke the generic Set<TEntity>() method
-                var dbSet = genericSetMethod.Invoke(_context, null);
-
-                if (dbSet is IQueryable queryable)
+                // For Hotels, clear the RoomIds to avoid the issue with required properties
+                foreach (var entity in entities)
                 {
-                    var entities = queryable.Cast<object>().ToList();
-
-                    // For Hotels, clear the RoomIds to avoid the issue with required properties
-                    foreach (var entity in entities)
+                    if (entity is Hotel hotel)
                     {
-                        if (entity is Hotel hotel)
-                        {
-                            hotel.RoomIds = [];  
-                        }
-                    }
-
-                    if (entities.Any())
-                    {
-                        _context.RemoveRange(entities); // Remove entities
+                        hotel.RoomIds = [];  
                     }
                 }
-                else
+
+                if (entities.Any())
                 {
-                    throw new InvalidOperationException($"Failed to retrieve DbSet for type '{type.Name}'.");
+                    _context.RemoveRange(entities); // Remove entities
                 }
             }
-
-            await _context.SaveChangesAsync();
+            else
+            {
+                throw new InvalidOperationException($"Failed to retrieve DbSet for type '{type.Name}'.");
+            }
         }
+
+        await _context.SaveChangesAsync();
     }
 }

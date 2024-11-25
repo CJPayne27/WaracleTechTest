@@ -2,45 +2,44 @@
 using HotelWaracleBookingApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HotelWaracleBookingApi.Controllers
+namespace HotelWaracleBookingApi.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class DatabaseController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class DatabaseController : ControllerBase
+    private readonly DatabaseSeeder _databaseSeeder;
+
+    public DatabaseController(DatabaseSeeder databaseSeeder)
     {
-        private readonly DatabaseSeeder _databaseSeeder;
+        _databaseSeeder = databaseSeeder ?? throw new ArgumentNullException(nameof(databaseSeeder));
+    }
 
-        public DatabaseController(DatabaseSeeder databaseSeeder)
+    [HttpPost("Seed")]
+    public async Task<IActionResult> SeedDatabase()
+    {
+        try
         {
-            _databaseSeeder = databaseSeeder ?? throw new ArgumentNullException(nameof(databaseSeeder));
+            await _databaseSeeder.SeedAsync();
+            return Ok(new { Message = "Database seeded successfully" });
         }
-
-        [HttpPost("Seed")]
-        public async Task<IActionResult> SeedDatabase()
+        catch (Exception ex)
         {
-            try
-            {
-                await _databaseSeeder.SeedAsync();
-                return Ok(new { Message = "Database seeded successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Error = "Failed to seed database", Details = ex.Message });
-            }
+            return StatusCode(500, new { Error = "Failed to seed database", Details = ex.Message });
         }
+    }
 
-        [HttpPost("Reset")]
-        public async Task<IActionResult> ResetDatabase()
+    [HttpPost("Reset")]
+    public async Task<IActionResult> ResetDatabase()
+    {
+        try
         {
-            try
-            {
-                await _databaseSeeder.ResetMultipleAsync(typeof(Hotel), typeof(HotelRoom), typeof(Booking));
-                return Ok(new { Message = "Database reset successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Error = "Failed to reset database", Details = ex.Message });
-            }
+            await _databaseSeeder.ResetMultipleAsync(typeof(Hotel), typeof(HotelRoom), typeof(Booking));
+            return Ok(new { Message = "Database reset successfully" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { Error = "Failed to reset database", Details = ex.Message });
         }
     }
 }

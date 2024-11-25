@@ -1,39 +1,38 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace HotelWaracleBookingApi.Data.Repositories
+namespace HotelWaracleBookingApi.Data.Repositories;
+
+public class GenericRepository<T> : IGenericRepository<T> where T : class 
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class 
+    protected readonly HotelWaracleDbContext _context;
+    protected readonly DbSet<T> _dbSet;
+
+    public GenericRepository(HotelWaracleDbContext context)
     {
-        protected readonly HotelWaracleDbContext _context;
-        protected readonly DbSet<T> _dbSet;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _dbSet = _context.Set<T>();
+    }
 
-        public GenericRepository(HotelWaracleDbContext context)
+    public virtual async Task<IEnumerable<T>> GetAllAsync()
+    {
+        return await _dbSet.ToListAsync();
+    }
+
+    public virtual async Task<T> GetByIdAsync(int id)
+    {
+        if (id == 0)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-            _dbSet = _context.Set<T>();
+            throw new ArgumentNullException(nameof(id));
         }
 
-        public virtual async Task<IEnumerable<T>> GetAllAsync()
-        {
-            return await _dbSet.ToListAsync();
-        }
+        return await _dbSet.FindAsync(id) ?? throw new InvalidOperationException();
+    }
 
-        public virtual async Task<T> GetByIdAsync(int id)
-        {
-            if (id == 0)
-            {
-                throw new ArgumentNullException(nameof(id));
-            }
+    public virtual async Task<T> AddAsync(T entity)
+    {
+        await _dbSet.AddAsync(entity);
+        await _context.SaveChangesAsync();
 
-            return await _dbSet.FindAsync(id) ?? throw new InvalidOperationException();
-        }
-
-        public virtual async Task<T> AddAsync(T entity)
-        {
-            await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
-
-            return entity;
-        }
+        return entity;
     }
 }
