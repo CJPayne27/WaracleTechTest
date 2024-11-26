@@ -20,7 +20,7 @@ public class HotelService : IHotelService
         return await _genericRepository.GetAllAsync();
     }
 
-    public async Task<Hotel?> GetHotelByHotelId(int id)
+    public async Task<Hotel?> GetHotelByHotelId(string id)
     {
         return await _hotelRepository.GetHotelByHotelId(id);
     }

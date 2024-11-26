@@ -59,17 +59,17 @@ public class HotelController : ControllerBase
     /// </summary>
     /// <param name="hotelId">The Id of the Hotel.</param>
     /// <returns>List of valid hotels, or a 404 if no hotels found.</returns>
-    [HttpGet("{hotelId:int}")]
-    public async Task<IActionResult> GetHotelByHotelId(int hotelId)
+    [HttpGet("{hotelId}")]
+    public async Task<IActionResult> GetHotelByHotelId(string hotelId)
     {
-        if (hotelId <= 0) // Validity of min/max hotelId
+        if (string.IsNullOrEmpty(hotelId))
         {
             _logger.LogWarning("Hotels: {HotelId} is invalid.", hotelId);
 
             return BadRequest(
                 CreateProblemDetails(
                     "HotelId invalid",
-                    "The HotelId should be greater than 0.",
+                    "The HotelId should not be null or empty",
                     StatusCodes.Status400BadRequest));
         }
 

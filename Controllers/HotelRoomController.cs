@@ -1,4 +1,5 @@
-﻿using HotelWaracleBookingApi.Services.Interfaces;
+﻿using HotelWaracleBookingApi.Models;
+using HotelWaracleBookingApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelWaracleBookingApi.Controllers;
@@ -93,6 +94,28 @@ public class HotelRoomController : ControllerBase
                     ex.Message,
                     StatusCodes.Status500InternalServerError));
         }
+    }
+
+    [HttpPut("{id:Guid}")]
+    public async Task<IActionResult> UpdateHotelRoom(Guid id, HotelRoom hotelRoom)
+    {
+        var existingHotelRoom = await _hotelRoomService.GetHotelRoomByRoomId(hotelRoom.Id, hotelRoom.HotelId);
+
+        if (existingHotelRoom == null)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Hotel Room Not Found",
+                Detail = $"No hotel room found with ID {id}",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
+        hotelRoom.IsOccupied = true;
+
+        await _hotelRoomService.UpdateHotelRoom(hotelRoom);
+
+        return Ok(new { Message = "Hotel room updated successfully" });
     }
 
     private ProblemDetails CreateProblemDetails(string title, string detail, int statusCode)

@@ -16,8 +16,18 @@ public class AvailabilityController : ControllerBase
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAvailableRooms(DateTime checkInDate, DateTime checkOutDate, int numberOfGuests)
+    /// <summary>
+    /// Gets the available hotel rooms for the specified date range and number of guests.
+    /// </summary>
+    /// <param name="checkInDate">The check-in date.</param>
+    /// <param name="checkOutDate">The check-out date.</param>
+    /// <param name="numberOfGuests">The number of guests.</param>
+    /// <returns>A list of available hotel rooms.</returns>
+    [HttpGet("available-rooms")]
+    public async Task<IActionResult> GetAvailableRooms(
+        [FromQuery] DateTime checkInDate,
+        [FromQuery] DateTime checkOutDate,
+        [FromQuery] int numberOfGuests)
     {
         _logger.LogInformation("Availability: Received request to get available rooms");
 

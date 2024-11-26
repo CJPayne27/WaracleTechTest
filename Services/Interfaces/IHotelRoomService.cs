@@ -7,4 +7,5 @@ public interface IHotelRoomService
     Task<IEnumerable<HotelRoom>> GetAllHotelRooms();
     Task<IEnumerable<HotelRoom>> GetHotelRoomsByHotelId(string hotelId);
     Task<HotelRoom?> GetHotelRoomByRoomId(string roomId, string hotelId);
+    Task UpdateHotelRoom(HotelRoom hotelRoom);
 }

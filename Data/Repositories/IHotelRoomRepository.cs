@@ -7,4 +7,5 @@ public interface IHotelRoomRepository
     Task<IEnumerable<HotelRoom>> GetAllAsync();
     Task<IEnumerable<HotelRoom>> GetHotelRoomsByHotelIdAsync(string hotelId);
     Task<HotelRoom?> GetHotelRoomByRoomId(string roomId, string hotelId);
+    Task UpdateHotelRoomAsync(HotelRoom hotelRoom);
 }

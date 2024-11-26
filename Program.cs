@@ -22,6 +22,16 @@ public class Program
         builder.Services.AddDbContext<HotelWaracleDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", policy =>
+            {
+                policy.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+
         builder.Services.AddControllers();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -73,6 +83,8 @@ public class Program
         builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
         
         var app = builder.Build();
+
+        app.UseCors("AllowAll");
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

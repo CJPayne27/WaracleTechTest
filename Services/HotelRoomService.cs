@@ -29,4 +29,14 @@ public class HotelRoomService : IHotelRoomService
     {
         return await _hotelRoomRepository.GetHotelRoomByRoomId(roomId, hotelId);
     }
+
+    public async Task UpdateHotelRoom(HotelRoom hotelRoom)
+    {
+        // Incomplete update as we only need to set the isOccupied = true here. If this were a real world example, we would compare the whole object
+        // and update the necessary fields using Automapper or some sort.
+
+        hotelRoom.IsOccupied = true;
+
+        await _hotelRoomRepository.UpdateHotelRoomAsync(hotelRoom);
+    }
 }

@@ -17,9 +17,9 @@ public class HotelRepository : IHotelRepository
         return await _context.Hotels.ToListAsync();
     }
 
-    public async Task<Hotel?> GetHotelByHotelId(int id)
+    public async Task<Hotel?> GetHotelByHotelId(string id)
     {
-        return await _context.Hotels.FirstOrDefaultAsync(h => h.Id == id.ToString());
+        return await _context.Hotels.FirstOrDefaultAsync(h => h.Id == id);
     }
 
     public async Task<Hotel?> GetHotelByName(string name)

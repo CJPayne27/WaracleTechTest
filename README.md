@@ -6,9 +6,10 @@ I decided on a layered architecture approach, with business logic and DAL separa
 
 #### Supporting Documents and Information
 
-I generated a `test-data.xslx` file which can be found in the `/docs` folder. I used ChatGPT to scaffold up the data so that the Database Seeding can be spun up and tore down when required (within the `/Database` endpoint)
+* I generated a `test-data.xslx` file which can be found in the `/docs` folder. I used ChatGPT to scaffold up the data so that the Database Seeding can be spun up and tore down when required (within the `/Database` endpoint)
+* There is a Postman collection for the API which contains all endpoints, some valid and invalid requests, and this is located in `\Docs\Hotel Waracle Booking Api.postman_collection.json`
+* I decided on using a SQL Server 2022 Db locally. This Db had multiple tables to hold dummy data when initially seeded, and then populated as and when was required through `POST` endpoints (mainly the `CreateBooking` endpoint).
 
-I decided on using a SQL Server 2022 Db locally. This Db had multiple tables to hold dummy data when initially seeded, and then populated as and when was required through `POST` endpoints (mainly the `CreateBooking` endpoint).
 
 This solution will be hosted on Azure - location TBD.
 

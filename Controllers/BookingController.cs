@@ -10,18 +10,16 @@ namespace HotelWaracleBookingApi.Controllers;
 public class BookingController : ControllerBase
 {
     private readonly IBookingRepository _bookingRepository;
-    private readonly IHotelRoomRepository _hotelRoomRepository;
     private readonly IHotelRoomService _hotelRoomService;
     private readonly IBookingService _bookingService;
     private readonly ILogger<BookingController> _logger;
 
-    public BookingController(IBookingRepository bookingRepository, IHotelRoomRepository hotelRoomRepository, IBookingService bookingService, ILogger<BookingController> logger, IHotelRoomService hotelRoomService)
+    public BookingController(IBookingRepository bookingRepository, IHotelRoomService hotelRoomService, IBookingService bookingService, ILogger<BookingController> logger)
     {
         _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
-        _hotelRoomRepository = hotelRoomRepository ?? throw new ArgumentNullException(nameof(hotelRoomRepository));
+        _hotelRoomService = hotelRoomService ?? throw new ArgumentNullException(nameof(hotelRoomService));
         _bookingService = bookingService ?? throw new ArgumentNullException(nameof(bookingService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _hotelRoomService = hotelRoomService ?? throw new ArgumentNullException(nameof(hotelRoomService));
     }
 
     /// <summary>
@@ -29,8 +27,8 @@ public class BookingController : ControllerBase
     /// </summary>
     /// <param name="bookingId">The id of the BookingRequest</param>
     /// <returns>A valid booking</returns>
-    [HttpGet("{bookingId:Guid}")]
-    public async Task<IActionResult?> GetBookingById(Guid bookingId)
+    [HttpGet]
+    public async Task<IActionResult?> GetBookingById([FromQuery]Guid bookingId)
     {
         _logger.LogInformation("Bookings: Received request to get booking by ID: {BookingId}", bookingId);
 
@@ -66,7 +64,7 @@ public class BookingController : ControllerBase
     /// </summary>
     /// <param name="bookingRequest">Check-In date, Check-Out date, Number of Guests</param>
     /// <returns>Id of a successful booking.</returns>
-    [HttpPost]
+    [HttpPost("CreateBooking")]
     public async Task<IActionResult> CreateBooking(BookingRequest bookingRequest)
     {
         var response = new BookingResponse();
@@ -115,8 +113,11 @@ public class BookingController : ControllerBase
                 }
             }
 
+            // Set the booking as confirmed, booking date to now, and update the room as occupied
             bookingRequest.Status = "Confirmed";
             bookingRequest.BookingDate = DateTime.UtcNow;
+
+            await _hotelRoomService.UpdateHotelRoom(room);
 
             var createdBooking = await _bookingRepository.CreateBooking(bookingRequest);
 

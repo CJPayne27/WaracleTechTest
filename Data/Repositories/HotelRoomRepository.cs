@@ -27,6 +27,13 @@ public class HotelRoomRepository : IHotelRoomRepository
         return await _context.HotelRooms.Where(r => r.HotelId == hotelId && r.Id == roomId).FirstOrDefaultAsync();
     }
 
+    public async Task UpdateHotelRoomAsync(HotelRoom hotelRoom)
+    {
+        _context.HotelRooms.Update(hotelRoom);
+
+        await _context.SaveChangesAsync();
+    }
+
     public async Task<IEnumerable<HotelRoom>> GetByIdAsync(string id)
     {
         return await _context.HotelRooms.Where(r => r.HotelId == id).ToListAsync();

@@ -1,0 +1,367 @@
+{
+	"info": {
+		"_postman_id": "6688f648-ee66-4541-b43d-2676d5e02081",
+		"name": "Hotel Waracle Booking Api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6426054"
+	},
+	"item": [
+		{
+			"name": "Availability",
+			"item": [
+				{
+					"name": "GetAvailableRooms - Incorrect Search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localUrl}}/Availability/available-rooms?checkInDate=2025-11-26T00:00:00.000Z&checkOutDate=2025-11-28T00:00:00.000Z&numberOfGuests=10000",
+							"host": [
+								"{{localUrl}}"
+							],
+							"path": [
+								"Availability",
+								"available-rooms"
+							],
+							"query": [
+								{
+									"key": "checkInDate",
+									"value": "2025-11-26T00:00:00.000Z"
+								},
+								{
+									"key": "checkOutDate",
+									"value": "2025-11-28T00:00:00.000Z"
+								},
+								{
+									"key": "numberOfGuests",
+									"value": "10000"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAvailableRooms - Incorrect Search - Dates Wrong",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localUrl}}/Availability/available-rooms?checkInDate=2025-11-26T00:00:00.000Z&checkOutDate=2025-11-21T00:00:00.000Z&numberOfGuests=10000",
+							"host": [
+								"{{localUrl}}"
+							],
+							"path": [
+								"Availability",
+								"available-rooms"
+							],
+							"query": [
+								{
+									"key": "checkInDate",
+									"value": "2025-11-26T00:00:00.000Z"
+								},
+								{
+									"key": "checkOutDate",
+									"value": "2025-11-21T00:00:00.000Z"
+								},
+								{
+									"key": "numberOfGuests",
+									"value": "10000"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Booking",
+			"item": [
+				{
+					"name": "ValidBooking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"bookingDate\": \"2024-11-26T19:34:05.114Z\",\r\n  \"checkInDate\": \"2025-11-27T19:34:05.114Z\",\r\n  \"checkOutDate\": \"2025-11-28T19:34:05.114Z\",\r\n  \"numberOfGuests\": 1,\r\n  \"hotelRoomId\": \"AB331\",\r\n  \"hotelId\": \"ALP003\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localUrl}}/Booking/CreateBooking",
+							"host": [
+								"{{localUrl}}"
+							],
+							"path": [
+								"Booking",
+								"CreateBooking"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "InvalidNewBooking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"bookingDate\": \"2024-11-26T19:34:05.114Z\",\r\n  \"checkInDate\": \"2025-11-27T19:34:05.114Z\",\r\n  \"checkOutDate\": \"2025-11-28T19:34:05.114Z\",\r\n  \"numberOfGuests\": 1,\r\n  \"hotelRoomId\": \"AB331\",\r\n  \"hotelId\": \"ALP003\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localUrl}}/Booking/CreateBooking",
+							"host": [
+								"{{localUrl}}"
+							],
+							"path": [
+								"Booking",
+								"CreateBooking"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "InvalidNewBooking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"bookingDate\": \"2024-11-26T19:34:05.114Z\",\r\n  \"checkInDate\": \"2025-11-27T19:34:05.114Z\",\r\n  \"checkOutDate\": \"2025-11-28T19:34:05.114Z\",\r\n  \"numberOfGuests\": 1,\r\n  \"hotelRoomId\": \"AB331\",\r\n  \"hotelId\": \"ALP003\"\r\n}"
+						},
+						"url": {
+							"raw": "{{localUrl}}/Booking/CreateBooking",
+							"host": [
+								"{{localUrl}}"
+							],
+							"path": [
+								"Booking",
+								"CreateBooking"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetBookingById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localUrl}}/Booking?bookingId=AB6A49AB-C2DD-4EAC-AD27-0C69E296A714",
+							"host": [
+								"{{localUrl}}"
+							],
+							"path": [
+								"Booking"
+							],
+							"query": [
+								{
+									"key": "bookingId",
+									"value": "AB6A49AB-C2DD-4EAC-AD27-0C69E296A714"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Database",
+			"item": [
+				{
+					"name": "Seed",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{localUrl}}/Database/Seed",
+							"host": [
+								"{{localUrl}}"
+							],
+							"path": [
+								"Database",
+								"Seed"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{localUrl}}/Database/Reset",
+							"host": [
+								"{{localUrl}}"
+							],
+							"path": [
+								"Database",
+								"Reset"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Hotel",
+			"item": [
+				{
+					"name": "GetAllHotels",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GetHotelByHotelId",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GetHotelByHotelId - Invalid",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localUrl}}/Hotel/HiltonHotel",
+							"host": [
+								"{{localUrl}}"
+							],
+							"path": [
+								"Hotel",
+								"HiltonHotel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetHotelByHotelName",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localUrl}}/Hotel/name/Hotel Delta-London",
+							"host": [
+								"{{localUrl}}"
+							],
+							"path": [
+								"Hotel",
+								"name",
+								"Hotel Delta-London"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetHotelByHotelName - Invalid",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localUrl}}/Hotel/name/Hotel Delta-Edinburgh",
+							"host": [
+								"{{localUrl}}"
+							],
+							"path": [
+								"Hotel",
+								"name",
+								"Hotel Delta-Edinburgh"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Hotel Room",
+			"item": [
+				{
+					"name": "GetAllHotelRooms",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localUrl}}/HotelRoom",
+							"host": [
+								"{{localUrl}}"
+							],
+							"path": [
+								"HotelRoom"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetHotelRoomsByHotelId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localUrl}}/HotelRoom/ALP002",
+							"host": [
+								"{{localUrl}}"
+							],
+							"path": [
+								"HotelRoom",
+								"ALP002"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetHotelRoomsByHotelId - Invalid",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localUrl}}/HotelRoom/HiltonHotel",
+							"host": [
+								"{{localUrl}}"
+							],
+							"path": [
+								"HotelRoom",
+								"HiltonHotel"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

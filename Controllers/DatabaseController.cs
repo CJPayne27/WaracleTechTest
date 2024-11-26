@@ -15,6 +15,10 @@ public class DatabaseController : ControllerBase
         _databaseSeeder = databaseSeeder ?? throw new ArgumentNullException(nameof(databaseSeeder));
     }
 
+    /// <summary>
+    /// Seeds the database with initial data.
+    /// </summary>
+    /// <returns></returns>
     [HttpPost("Seed")]
     public async Task<IActionResult> SeedDatabase()
     {
@@ -37,6 +41,10 @@ public class DatabaseController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Resets the database.
+    /// </summary>
+    /// <returns></returns>
     [HttpPost("Reset")]
     public async Task<IActionResult> ResetDatabase()
     {

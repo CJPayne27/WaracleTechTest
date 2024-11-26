@@ -15,16 +15,9 @@ public class AvailabilityService : IAvailabilityService
         _hotelRoomRepository = hotelRoomRepository ?? throw new ArgumentNullException(nameof(hotelRoomRepository));
     }
 
-    /// <summary>
-    /// Gets the available hotel rooms for the specified date range and number of guests.
-    /// </summary>
-    /// <param name="checkInDate">The check-in date.</param>
-    /// <param name="checkOutDate">The check-out date.</param>
-    /// <param name="numberOfGuests">The number of guests.</param>
-    /// <returns>A list of available hotel rooms.</returns>
     public async Task<IEnumerable<HotelRoom>> GetAvailableRooms(DateTime checkInDate, DateTime checkOutDate, int numberOfGuests)
     {
-        if (checkInDate >= checkOutDate)
+        if (checkOutDate <= checkInDate)
         {
             throw new ArgumentException("Check-out date must be later than check-in date.");
         }
