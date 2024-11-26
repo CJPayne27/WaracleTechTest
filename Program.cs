@@ -1,3 +1,4 @@
+using System.Reflection;
 using HotelWaracleBookingApi.Data;
 using HotelWaracleBookingApi.Data.Repositories;
 using HotelWaracleBookingApi.Exceptions;
@@ -27,7 +28,23 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new() { Title = "HotelWaracleBookingApi", Version = "v1", Description = "CJ Grant Tech Test"});
+            c.SwaggerDoc("v1", new()
+            { 
+                Title = "HotelWaracleBookingApi", 
+                Version = "v1", 
+                Description = "CJ Grant Tech Test",
+                Contact = new OpenApiContact
+                {
+                    Name = "CJ Grant",
+                    Email = "cjpayne27@gmail.com"
+                }
+            });
+
+            // Enable XML Comments for Swagger
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            c.IncludeXmlComments(xmlPath); // Add XML comments to Swagger
+
             c.MapType<ProblemDetails>(() => new OpenApiSchema
             {
                 Type = "object",
@@ -61,7 +78,10 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
+            });
         }
 
         app.UseExceptionHandler(appBuilder =>
