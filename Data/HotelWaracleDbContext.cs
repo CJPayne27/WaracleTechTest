@@ -17,7 +17,7 @@ public class HotelWaracleDbContext : DbContext
 
     public DbSet<Hotel> Hotels { get; set; }
     public DbSet<HotelRoom> HotelRooms { get; set; }
-    public DbSet<Booking> Bookings { get; set; }
+    public DbSet<BookingRequest> Bookings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,7 +27,7 @@ public class HotelWaracleDbContext : DbContext
 
         modelBuilder.Entity<Hotel>().ToTable("Hotels", "dbo");
         modelBuilder.Entity<HotelRoom>().ToTable("HotelRooms", "dbo");
-        modelBuilder.Entity<Booking>().ToTable("Bookings", "dbo");
+        modelBuilder.Entity<BookingRequest>().ToTable("Bookings", "dbo");
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

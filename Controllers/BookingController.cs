@@ -1,8 +1,7 @@
-﻿using HotelWaracleBookingApi.Data;
+﻿using HotelWaracleBookingApi.Data.Repositories;
 using HotelWaracleBookingApi.Models;
 using HotelWaracleBookingApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace HotelWaracleBookingApi.Controllers;
 
@@ -10,86 +9,163 @@ namespace HotelWaracleBookingApi.Controllers;
 [ApiController]
 public class BookingController : ControllerBase
 {
-    private readonly HotelWaracleDbContext _context;
+    private readonly IBookingRepository _bookingRepository;
+    private readonly IHotelRoomRepository _hotelRoomRepository;
+    private readonly IHotelRoomService _hotelRoomService;
     private readonly IBookingService _bookingService;
     private readonly ILogger<BookingController> _logger;
 
-    public BookingController(HotelWaracleDbContext context, IBookingService bookingService, ILogger<BookingController> logger)
+    public BookingController(IBookingRepository bookingRepository, IHotelRoomRepository hotelRoomRepository, IBookingService bookingService, ILogger<BookingController> logger, IHotelRoomService hotelRoomService)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
+        _hotelRoomRepository = hotelRoomRepository ?? throw new ArgumentNullException(nameof(hotelRoomRepository));
         _bookingService = bookingService ?? throw new ArgumentNullException(nameof(bookingService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _hotelRoomService = hotelRoomService ?? throw new ArgumentNullException(nameof(hotelRoomService));
     }
 
     /// <summary>
-    /// Retrieves a booking by its Id.
+    /// Retrieves a booking by its id.
     /// </summary>
-    /// <param name="bookingId">The Id of the Booking</param>
+    /// <param name="bookingId">The id of the BookingRequest</param>
     /// <returns>A valid booking</returns>
     [HttpGet("{bookingId:Guid}")]
     public async Task<IActionResult?> GetBookingById(Guid bookingId)
     {
+        _logger.LogInformation("Bookings: Received request to get booking by ID: {BookingId}", bookingId);
+
         try
         {
-            _logger.LogInformation("Bookings: Received request to get booking by ID: {BookingId}", bookingId);
-
             var booking = await _bookingService.GetBookingById(bookingId);
-
             if (booking == null)
             {
-                _logger.LogWarning("Bookings: No booking found for ID: {BookingId}", bookingId);
-                return NotFound("No booking found.");
+                return NotFound(
+                    CreateProblemDetails(
+                        "No booking found",
+                        "No booking found for the specified ID.",
+                        StatusCodes.Status404NotFound));
             }
 
             return Ok(booking);
         }
         catch (Exception ex)
         {
-            return HandleInternalError(ex, $"Error occurred while retrieving booking with ID: {bookingId}.");
-        }
-    }
+            _logger.LogError(ex, "Error occurred while retrieving booking with ID: {BookingId}", bookingId);
 
-    [HttpPost]
-    public async Task<IActionResult> CreateBooking(Booking booking)
-    {
-        try
-        {
-            //TODO: Check booking validity
-            //TODO: Check booking dates
-            //TODO: Check room availability
-            //TODO: Set booking status
-
-            return Ok(new Booking());
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                    CreateProblemDetails(
+                        "Error occurred",
+                        ex.Message,
+                        StatusCodes.Status500InternalServerError));
         }
-        catch (Exception e)
-        {
-            return HandleInternalError(e, "There has been an error while booking the hotel room");
-        }
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetBookings()
-    {
-        var bookings = await _context.Bookings.ToListAsync();
-        return Ok(bookings);
     }
 
     /// <summary>
-    /// Handles internal server errors consistently and logs the exception.
+    /// Creates a new booking.
     /// </summary>
-    /// <param name="exception">The exception that occurred.</param>
-    /// <param name="contextMessage">Optional context-specific message for logging.</param>
-    private IActionResult HandleInternalError(Exception exception, string contextMessage = null)
+    /// <param name="bookingRequest">Check-In date, Check-Out date, Number of Guests</param>
+    /// <returns>Id of a successful booking.</returns>
+    [HttpPost]
+    public async Task<IActionResult> CreateBooking(BookingRequest bookingRequest)
     {
-        if (!string.IsNullOrWhiteSpace(contextMessage))
+        var response = new BookingResponse();
+
+        try
         {
-            _logger.LogError(exception, contextMessage);
+            var validationError = ValidateBookingRequest(bookingRequest);
+            if (validationError != null)
+            {
+                return BadRequest(
+                    CreateProblemDetails(
+                        validationError.Title!,
+                        validationError.Detail!,
+                        StatusCodes.Status400BadRequest));
+            }
+
+            var room = await _hotelRoomService.GetHotelRoomByRoomId(bookingRequest.HotelRoomId, bookingRequest.HotelId);
+            
+            if (room == null || room.IsOccupied)
+            {
+                return BadRequest(
+                    CreateProblemDetails(
+                    "Room unavailable",
+                    "The selected room does not exist or is unavailable.",
+                    StatusCodes.Status400BadRequest));
+            }
+
+            if (room.MinCapacity > bookingRequest.NumberOfGuests ||
+                room.MaxCapacity < bookingRequest.NumberOfGuests)
+            {
+                return BadRequest(
+                    CreateProblemDetails(
+                        "Capacity issue",
+                        $"The room cannot accommodate {bookingRequest.NumberOfGuests} guests.",
+                        StatusCodes.Status400BadRequest));
+            }
+
+            var overlappingBookings = await _bookingService.GetAllBookingsBetweenDateRange(bookingRequest.CheckInDate, bookingRequest.CheckOutDate);
+            {
+                if (overlappingBookings.Any(b => b.HotelRoomId == bookingRequest.HotelRoomId))
+                {
+                    return BadRequest(CreateProblemDetails(
+                        "Room not available", 
+                        "The selected room is not available for the chosen dates.", 
+                        StatusCodes.Status400BadRequest));
+                }
+            }
+
+            bookingRequest.Status = "Confirmed";
+            bookingRequest.BookingDate = DateTime.UtcNow;
+
+            var createdBooking = await _bookingRepository.CreateBooking(bookingRequest);
+
+            response.Id = createdBooking.Id;
+            response.Message = "Booking created successfully.";
+
+            return Ok(response);
         }
-        else
+        catch (Exception ex)
         {
-            _logger.LogError(exception, "An unexpected error occurred.");
+            _logger.LogError(ex, "Error occurred while creating a booking.");
+
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                CreateProblemDetails(
+                    "Error occurred",
+                    ex.Message,
+                    StatusCodes.Status500InternalServerError));
+        }
+    }
+
+    private ProblemDetails CreateProblemDetails(string title, string detail, int statusCode)
+    {
+        return new ProblemDetails
+        {
+            Title = title,
+            Detail = detail,
+            Status = statusCode,
+            Instance = HttpContext.Request.Path
+        };
+    }
+
+    private ProblemDetails? ValidateBookingRequest(BookingRequest request)
+    {
+        if (request.CheckInDate == request.CheckOutDate)
+        {
+            return CreateProblemDetails(
+                "Invalid stay duration",
+                "Minimum of 1 night stay required for BookingRequest",
+                StatusCodes.Status400BadRequest);
         }
 
-        return StatusCode(500, "An error occurred while processing your request. Please try again later.");
+        if (request.CheckInDate < DateTime.UtcNow)
+        {
+            return CreateProblemDetails(
+                "Invalid check-in date",
+                "BookingRequest cannot be made for past dates.",
+                StatusCodes.Status400BadRequest);
+        }
+
+        return null;
     }
 }

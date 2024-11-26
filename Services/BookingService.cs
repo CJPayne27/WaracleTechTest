@@ -13,13 +13,19 @@ public class BookingService : IBookingService
         _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
     }
 
-    public async Task<Booking?> GetBookingById(Guid bookingId)
+    public async Task<BookingRequest?> GetBookingById(Guid bookingId)
     {
         return await _bookingRepository.GetBookingById(bookingId);
     }
 
-    public async Task<Booking> CreateBooking()
+    public async Task<BookingRequest> CreateBooking(BookingRequest bookingRequest)
     {
-        return await _bookingRepository.CreateBooking();
+        return await _bookingRepository.CreateBooking(bookingRequest);
+    }
+
+    public async Task<IEnumerable<BookingRequest>> GetAllBookingsBetweenDateRange(DateTime bookingRequestCheckInDate,
+        DateTime bookingRequestCheckOutDate)
+    {
+        return await _bookingRepository.GetAllBookingsBetweenDateRange(bookingRequestCheckInDate, bookingRequestCheckOutDate);
     }
 }

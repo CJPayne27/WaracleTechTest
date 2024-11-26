@@ -15,7 +15,7 @@ public partial class DatabaseSeeder
     {
         try
         {
-            await ResetMultipleAsync(typeof(Hotel), typeof(HotelRoom), typeof(Booking));
+            await ResetMultipleAsync(typeof(Hotel), typeof(HotelRoom), typeof(BookingRequest));
         }
         catch (Exception ex)
         {

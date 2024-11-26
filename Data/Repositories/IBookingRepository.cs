@@ -1,10 +1,10 @@
 ﻿using HotelWaracleBookingApi.Models;
 
-namespace HotelWaracleBookingApi.Data.Repositories
+namespace HotelWaracleBookingApi.Data.Repositories;
+
+public interface IBookingRepository
 {
-    public interface IBookingRepository
-    {
-        Task<Booking?> GetBookingById(Guid bookingId);
-        Task<Booking> CreateBooking();
-    }
+    Task<BookingRequest?> GetBookingById(Guid bookingId);
+    Task<IEnumerable<BookingRequest?>> GetAllBookingsBetweenDateRange(DateTime startDate, DateTime endDate);
+    Task<BookingRequest> CreateBooking(BookingRequest bookingRequest);
 }

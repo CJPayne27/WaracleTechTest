@@ -22,6 +22,11 @@ public class HotelRoomService : IHotelRoomService
 
     public async Task<IEnumerable<HotelRoom>> GetHotelRoomsByHotelId(string hotelId)
     {
-        return await _hotelRoomRepository.GetByIdAsync(hotelId);
+        return await _hotelRoomRepository.GetHotelRoomsByHotelIdAsync(hotelId);
+    }
+
+    public async Task<HotelRoom?> GetHotelRoomByRoomId(string roomId, string hotelId)
+    {
+        return await _hotelRoomRepository.GetHotelRoomByRoomId(roomId, hotelId);
     }
 }

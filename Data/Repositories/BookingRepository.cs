@@ -12,13 +12,25 @@ public class BookingRepository : IBookingRepository
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public async Task<Booking?> GetBookingById(Guid bookingId)
+    public async Task<BookingRequest?> GetBookingById(Guid bookingId)
     {
-        return await _context.Bookings.FirstOrDefaultAsync(b => b!.Id == bookingId);
+        return await _context.Bookings.FindAsync(bookingId);
     }
 
-    public Task<Booking> CreateBooking()
+    public async Task<IEnumerable<BookingRequest?>> GetAllBookingsBetweenDateRange(DateTime startDate, DateTime endDate)
     {
-        throw new NotImplementedException(); //TODO: Implement
+        return await _context.Bookings
+            .Where(booking =>
+                booking.CheckInDate < endDate &&
+                booking.CheckOutDate > startDate)
+            .ToListAsync();
+    }
+
+    public async Task<BookingRequest> CreateBooking(BookingRequest bookingRequest)
+    {
+        _context.Bookings.Add(bookingRequest);
+        await _context.SaveChangesAsync();
+
+        return bookingRequest;
     }
 }

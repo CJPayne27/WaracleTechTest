@@ -4,6 +4,7 @@ using HotelWaracleBookingApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelWaracleBookingApi.Migrations
 {
     [DbContext(typeof(HotelWaracleDbContext))]
-    partial class HotelWaracleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241126094305_AddBookingStatusAndHotelId")]
+    partial class AddBookingStatusAndHotelId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace HotelWaracleBookingApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("HotelWaracleBookingApi.Models.BookingRequest", b =>
+            modelBuilder.Entity("HotelWaracleBookingApi.Models.Booking", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

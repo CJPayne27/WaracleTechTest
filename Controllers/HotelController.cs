@@ -28,18 +28,29 @@ public class HotelController : ControllerBase
             _logger.LogInformation("Hotels: Received request to get all hotels");
             var hotels = await _hotelService.GetAllHotels();
 
-            if (hotels == null || !hotels.Any())
+            if (!hotels.Any())
             {
-                _logger.LogInformation("Hotels: No hotels found.");
-                return NotFound("No hotels found.");
+                var message = "No hotels found.";
+
+                _logger.LogInformation($"Hotels: {message}");
+
+                return NotFound(
+                    CreateProblemDetails(
+                        message,
+                        message,
+                        StatusCodes.Status404NotFound));
             }
 
             return Ok(hotels);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Hotels: An error occurred while retrieving all hotels");
-            return HandleInternalError();
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                CreateProblemDetails(
+                    "Error occurred",
+                    ex.Message,
+                    StatusCodes.Status500InternalServerError));
         }
     }
 
@@ -55,7 +66,11 @@ public class HotelController : ControllerBase
         {
             _logger.LogWarning("Hotels: {HotelId} is invalid.", hotelId);
 
-            return BadRequest("Hotel Id cannot be less than or 0.");
+            return BadRequest(
+                CreateProblemDetails(
+                    "HotelId invalid",
+                    "The HotelId should be greater than 0.",
+                    StatusCodes.Status400BadRequest));
         }
 
         try
@@ -66,7 +81,11 @@ public class HotelController : ControllerBase
             {
                 _logger.LogInformation("Hotels: No hotels found for HotelId: {HotelId}", hotelId);
 
-                return NotFound($"No hotels found for hotel ID: {hotelId}");
+                return NotFound(
+                    CreateProblemDetails(
+                        "No hotels found",
+                        $"No hotels found for hotel ID: {hotelId}",
+                        StatusCodes.Status404NotFound));
             }
 
             return Ok(hotel);
@@ -75,7 +94,11 @@ public class HotelController : ControllerBase
         {
             _logger.LogError(ex, "Hotels: An error occurred while processing the GetHotelByHotelId request");
 
-            return HandleInternalError();
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                CreateProblemDetails(
+                    "Error occurred",
+                    ex.Message,
+                    StatusCodes.Status500InternalServerError));
         }
     }
 
@@ -99,7 +122,11 @@ public class HotelController : ControllerBase
             var hotel = await _hotelService.GetHotelByName(name);
             if (hotel == null)
             {
-                return NotFound($"No hotels found for hotel name: {name}");
+                return NotFound(
+                    CreateProblemDetails(
+                "No hotels found",
+                        $"No hotels found for hotel name: {name}",
+                        StatusCodes.Status404NotFound));
             }
 
             return Ok(hotel);
@@ -108,24 +135,22 @@ public class HotelController : ControllerBase
         {
             _logger.LogError(ex, "Hotels: An error occurred while processing the GetHotelByName request");
 
-            return HandleInternalError();
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                CreateProblemDetails(
+                    "Error occurred",
+                    ex.Message,
+                    StatusCodes.Status500InternalServerError));
         }
     }
 
-    //[HttpPost("/create")]
-    //public async Task<IActionResult> CreateHotel(Hotel hotel)
-    //{
-    //    _context.Hotels.Add(hotel);
-    //    await _context.SaveChangesAsync();
-
-    //    return CreatedAtAction(nameof(GetHotels), new { id = hotel.Id }, hotel);
-    //}
-
-    /// <summary>
-    /// Handles internal server errors consistently.
-    /// </summary>
-    private IActionResult HandleInternalError()
+    private ProblemDetails CreateProblemDetails(string title, string detail, int statusCode)
     {
-        return StatusCode(500, "An error occurred while processing your request. Please try again later.");
+        return new ProblemDetails
+        {
+            Title = title,
+            Detail = detail,
+            Status = statusCode,
+            Instance = HttpContext.Request.Path
+        };
     }
 }

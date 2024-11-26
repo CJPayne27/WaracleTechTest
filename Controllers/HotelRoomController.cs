@@ -29,14 +29,23 @@ public class HotelRoomController : ControllerBase
 
             if (!hotelRooms.Any())
             {
-                return NotFound("No hotel rooms found.");
+                return NotFound(
+                    CreateProblemDetails(
+                        "No hotel rooms found.",
+                        "No hotel rooms found.",
+                        StatusCodes.Status404NotFound));
             }
 
             return Ok(hotelRooms);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return HandleInternalError(e, "Error occurred while retrieving all hotel rooms.");
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                CreateProblemDetails(
+                    "Error occurred while retrieving all hotel rooms.",
+                    ex.Message,
+                    StatusCodes.Status500InternalServerError));
         }
     }
 
@@ -52,7 +61,11 @@ public class HotelRoomController : ControllerBase
         {
             _logger.LogWarning("HotelRooms: Invalid HotelId: {HotelId} provided", hotelId);
 
-            return BadRequest("Hotel ID cannot be null or empty.");
+            return BadRequest(
+                CreateProblemDetails(
+                    "Hotel ID is invalid",
+                    "Hotel ID cannot be null or empty.",
+                    StatusCodes.Status400BadRequest));
         }
 
         try
@@ -63,33 +76,33 @@ public class HotelRoomController : ControllerBase
             {
                 _logger.LogWarning("HotelRooms: No rooms found for HotelId: {HotelId}", hotelId);
 
-                return NotFound($"No rooms found for hotel ID: {hotelId}");
+                return BadRequest(
+                    CreateProblemDetails(
+                        "No hotel rooms found",
+                        $"No rooms found for hotel ID: {hotelId}",
+                        StatusCodes.Status400BadRequest));
             }
 
             return Ok(hotelRooms);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return HandleInternalError(e, $"Error occurred while retrieving rooms for HotelId: {hotelId}.");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                CreateProblemDetails(
+                    $"Error occurred while retrieving rooms for HotelId: {hotelId}.",
+                    ex.Message,
+                    StatusCodes.Status500InternalServerError));
         }
     }
 
-    /// <summary>
-    /// Handles internal server errors consistently and logs the exception.
-    /// </summary>
-    /// <param name="exception">The exception that occurred.</param>
-    /// <param name="contextMessage">Optional context-specific message for logging.</param>
-    private IActionResult HandleInternalError(Exception exception, string contextMessage = null)
+    private ProblemDetails CreateProblemDetails(string title, string detail, int statusCode)
     {
-        if (!string.IsNullOrWhiteSpace(contextMessage))
+        return new ProblemDetails
         {
-            _logger.LogError(exception, contextMessage);
-        }
-        else
-        {
-            _logger.LogError(exception, "An unexpected error occurred.");
-        }
-
-        return StatusCode(500, "An error occurred while processing your request. Please try again later.");
+            Title = title,
+            Detail = detail,
+            Status = statusCode,
+            Instance = HttpContext.Request.Path
+        };
     }
 }

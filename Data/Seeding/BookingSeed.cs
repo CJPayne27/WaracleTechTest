@@ -4,9 +4,9 @@ namespace HotelWaracleBookingApi.Data.Seeding;
 
 public partial class DatabaseSeeder
 {
-    private List<Booking> CreateBookingData()
+    private List<BookingRequest> CreateBookingData()
     {
-        var bookings = new List<Booking>
+        var bookings = new List<BookingRequest>
         {
             new()
             {
@@ -15,7 +15,9 @@ public partial class DatabaseSeeder
                 CheckInDate = new DateTime(2024, 12, 15),
                 CheckOutDate = new DateTime(2024, 12, 17),
                 NumberOfGuests = 3,
-                HotelRoomId = "DL1103"
+                HotelRoomId = "DL1103",
+                Status = "Confirmed",
+                HotelId = "DEL100"
             },
             new()
             {
@@ -24,7 +26,9 @@ public partial class DatabaseSeeder
                 CheckInDate = new DateTime(2025, 01, 17),
                 CheckOutDate = new DateTime(2025, 01, 20),
                 NumberOfGuests = 2,
-                HotelRoomId = "AG102"
+                HotelRoomId = "AG102",
+                Status = "Confirmed",
+                HotelId = "ALP001"
             },
             new()
             {
@@ -33,7 +37,9 @@ public partial class DatabaseSeeder
                 CheckInDate = new DateTime(2025, 02, 21),
                 CheckOutDate = new DateTime(2025, 02, 28),
                 NumberOfGuests = 6,
-                HotelRoomId = "AG106"
+                HotelRoomId = "AG106",
+                Status = "Confirmed",
+                HotelId = "ALP001"
             },
             new()
             {
@@ -42,7 +48,9 @@ public partial class DatabaseSeeder
                 CheckInDate = new DateTime(2025, 02, 01),
                 CheckOutDate = new DateTime(2025, 02, 15),
                 NumberOfGuests = 8,
-                HotelRoomId = "AL206"
+                HotelRoomId = "AL206",
+                Status = "Confirmed", 
+                HotelId = "ALP002"
             },
             new()
             {
@@ -51,7 +59,9 @@ public partial class DatabaseSeeder
                 CheckInDate = new DateTime(2025, 01, 01),
                 CheckOutDate = new DateTime(2025, 01, 02),
                 NumberOfGuests = 1,
-                HotelRoomId = "AB332"
+                HotelRoomId = "AB332",
+                Status = "Confirmed", 
+                HotelId = "ALP003"
             }
         };
 

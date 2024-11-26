@@ -4,7 +4,9 @@ namespace HotelWaracleBookingApi.Services.Interfaces
 {
     public interface IBookingService
     {
-        Task<Booking?> GetBookingById(Guid bookingId);
-        Task<Booking> CreateBooking();
+        Task<BookingRequest?> GetBookingById(Guid bookingId);
+        Task<BookingRequest> CreateBooking(BookingRequest bookingRequest);
+        Task<IEnumerable<BookingRequest>> GetAllBookingsBetweenDateRange(DateTime bookingRequestCheckInDate,
+            DateTime bookingRequestCheckOutDate);
     }
 }

@@ -21,11 +21,19 @@ public class DatabaseController : ControllerBase
         try
         {
             await _databaseSeeder.SeedAsync();
-            return Ok(new { Message = "Database seeded successfully" });
+            return Ok(
+                new
+                {
+                    Message = "Database seeded successfully"
+                });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { Error = "Failed to seed database", Details = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                CreateProblemDetails(
+                    "Failed to seed database",
+                    ex.Message,
+                    StatusCodes.Status500InternalServerError));
         }
     }
 
@@ -34,12 +42,31 @@ public class DatabaseController : ControllerBase
     {
         try
         {
-            await _databaseSeeder.ResetMultipleAsync(typeof(Hotel), typeof(HotelRoom), typeof(Booking));
-            return Ok(new { Message = "Database reset successfully" });
+            await _databaseSeeder.ResetMultipleAsync(typeof(Hotel), typeof(HotelRoom), typeof(BookingRequest));
+            return Ok(
+                new
+                {
+                    Message = "Database reset successfully"
+                });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { Error = "Failed to reset database", Details = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                CreateProblemDetails(
+                    "Failed to reset database",
+                    ex.Message,
+                    StatusCodes.Status500InternalServerError));
         }
+    }
+
+    private ProblemDetails CreateProblemDetails(string title, string detail, int statusCode)
+    {
+        return new ProblemDetails
+        {
+            Title = title,
+            Detail = detail,
+            Status = statusCode,
+            Instance = HttpContext.Request.Path
+        };
     }
 }
