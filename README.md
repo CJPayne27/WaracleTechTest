@@ -17,6 +17,7 @@ API is available here - https://hotelwaraclebookingapi.azurewebsites.net/swagger
 
 This **should** be unlocked and publicly available, but if there are any issues viewing or hitting Swagger, please  <a href="mailto:cjpayne27@gmail.com?subject=HotelWaracle%20Azure%20API%20access%20request">Request API Access</a>.
 
+Please import the Swagger json collection and the `Azure` environment, both located in the `/Docs` folder.
 
 ## Hotels
  
